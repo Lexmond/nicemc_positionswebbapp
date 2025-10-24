@@ -29,7 +29,7 @@ mkdir influenza-positions-app
 cd influenza-positions-app
 
 # Download the docker-compose file
-curl -o docker-compose.yml https://raw.githubusercontent.com/yourusername/repo/main/docker-compose.public.yml
+curl -o docker-compose.yml https://raw.githubusercontent.com/Lexmond/nicemc_positionswebbapp/main/docker-compose.public.yml
 ```
 
 ### 2. Start the Application
