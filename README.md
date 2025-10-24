@@ -1,16 +1,202 @@
-# Influenza Sequence Analysis Web Application
+# 🧬 NICEMC Influenza Positions Web Application
 
-A web-based interface for running Snakemake influenza sequence analysis workflows. This application provides an easy-to-use platform for uploading sequence files, running bioinformatics analysis, and downloading results.
+A web-based platform for automated influenza hemagglutinin (HA) sequence analysis using Nextclade phylogenetic classification and amino acid position tracking.
 
-## Features
+## 🌟 Features
 
-- **File Upload Interface**: Upload H1N1pdm, H3N2, B-Victoria sequence files and position reference data
-- **Automated Workflow Execution**: Runs Snakemake workflows with Nextclade for phylogenetic analysis
-- **Real-time Monitoring**: WebSocket-based status updates and log streaming
-- **Results Download**: Packaged results in ZIP format with comprehensive analysis outputs
-- **Containerized Environment**: Docker-based deployment with all dependencies included
+- **Automated Phylogenetic Analysis**: Nextclade-based classification for H1N1pdm, H3N2, and B-Victoria
+- **Position Analysis**: Track amino acid positions of interest for vaccine strain monitoring
+- **Glycosylation Site Detection**: Automated identification of N-linked glycosylation sites
+- **Antiviral Resistance Markers**: Detection of known resistance-associated positions
+- **Web Interface**: User-friendly upload and download interface
+- **Real-time Monitoring**: Live workflow status updates
+- **Comprehensive Reports**: Excel and CSV output formats
 
-## Architecture
+## 📋 Prerequisites
+
+- **Docker Desktop** (20.10+)
+- **Docker Compose** (v2.0+)
+- At least **4GB RAM** available for containers
+- **10GB+ disk space** for analysis data and Nextclade datasets
+
+## 🚀 Quick Start
+
+### 1. Clone or Download
+
+```bash
+# Create a directory for the application
+mkdir influenza-positions-app
+cd influenza-positions-app
+
+# Download the docker-compose file
+curl -o docker-compose.yml https://raw.githubusercontent.com/yourusername/repo/main/docker-compose.public.yml
+```
+
+### 2. Start the Application
+
+```bash
+# Pull images and start all services
+docker-compose up -d
+
+# Check status
+docker-compose ps
+```
+
+### 3. Access the Application
+
+- **Web Interface**: http://localhost:3000
+- **API**: http://localhost:5000
+
+### 4. Upload Files
+
+1. Navigate to http://localhost:3000
+2. Upload your FASTA files:
+   - **H1N1pdm sequences** (optional)
+   - **H3N2 sequences** (optional)
+   - **B-Victoria sequences** (optional)
+   - **Positions reference** Excel file (optional - default provided)
+3. Click **"Upload Files & Start Analysis"**
+4. Monitor progress in real-time
+5. Download results when complete
+
+## 📁 Input File Requirements
+
+### Sequence Files (FASTA)
+
+- **Format**: Standard FASTA format
+- **Header**: Must include strain name
+- **Gene**: Hemagglutinin (HA) nucleotide sequences
+- **Example**:
+  ```
+  >A/Netherlands/12345/2024
+  ATGAAGACTATCATTGCTTTGAGCTAC...
+  ```
+
+### Positions Reference (Excel)
+
+- **Optional**: Default file included if not provided
+- **Format**: `.xlsx` with specific column structure
+- **Download template**: Available in web interface
+
+## 📊 Output Files
+
+Results are packaged as a ZIP file containing:
+
+- **Nextclade results**: CSV with phylogenetic classification and mutations
+- **Amino acid translations**: FASTA format
+- **Position analysis**: CSV with position-specific data
+- **Glycosylation sites**: CSV with N-linked glycosylation predictions
+- **Antiviral resistance**: CSV with resistance marker analysis
+- **Combined reports**: Excel workbook with all results
+
+## 🛠️ Configuration
+
+### Environment Variables
+
+You can customize the application by editing the `docker-compose.yml`:
+
+```yaml
+environment:
+  - CORES=4              # CPU cores for Snakemake
+  - INPUT_DIR=/app/input
+  - OUTPUT_DIR=/app/output
+```
+
+### Port Configuration
+
+Change ports if 3000 or 5000 are already in use:
+
+```yaml
+ports:
+  - "8080:3000"  # Frontend
+  - "8090:5000"  # Backend API
+```
+
+## 🔧 Management Commands
+
+```bash
+# View logs
+docker-compose logs -f
+
+# View specific service logs
+docker-compose logs -f snakemake-env
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (clean slate)
+docker-compose down -v
+
+# Restart services
+docker-compose restart
+
+# Update to latest images
+docker-compose pull
+docker-compose up -d
+```
+
+## 🧪 Testing
+
+### Sample Data
+
+Download sample influenza sequences from:
+- [GISAID](https://www.gisaid.org/) (registration required)
+- [NCBI Influenza Virus Resource](https://www.ncbi.nlm.nih.gov/genomes/FLU/)
+
+### Quick Test
+
+1. Upload a small FASTA file (5-10 sequences)
+2. Use default positions file
+3. Verify workflow completes
+4. Download and inspect results
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+**1. Port Already in Use**
+```bash
+# Change ports in docker-compose.yml
+ports:
+  - "8080:3000"  # Use different port
+```
+
+**2. Out of Memory**
+```bash
+# Increase Docker Desktop memory allocation
+# Docker Desktop → Preferences → Resources → Memory (4GB minimum)
+```
+
+**3. Workflow Not Starting**
+```bash
+# Check snakemake container logs
+docker-compose logs snakemake-env
+
+# Ensure workflow_watcher is running
+docker exec positions-snakemake ps aux | grep workflow_watcher
+```
+
+**4. Upload Fails**
+```bash
+# Check file size (max 100MB per file)
+# Verify FASTA format is correct
+# Check API logs
+docker-compose logs api
+```
+
+### Debug Mode
+
+Enable detailed logging:
+
+```bash
+# View all container logs in real-time
+docker-compose logs -f
+
+# Access container shell
+docker exec -it positions-snakemake /bin/bash
+```
+
+## 📖 Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -23,196 +209,65 @@ A web-based interface for running Snakemake influenza sequence analysis workflow
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-## Prerequisites
+## 🔬 Technology Stack
 
-- Docker and Docker Compose
-- At least 4GB RAM available for containers
-- 10GB+ disk space for analysis data
+- **Frontend**: React 18 + TypeScript + Material-UI
+- **Backend**: Node.js + Express + Socket.IO
+- **Workflow**: Snakemake + Conda
+- **Analysis**: Nextclade CLI + Python + BioPython
+- **Containerization**: Docker + Docker Compose
 
-## Quick Start
+## 📚 Included Tools
 
-1. **Clone and navigate to the project:**
-   ```bash
-   cd /path/to/Positions_WebApp
-   ```
+- **Nextclade**: Phylogenetic classification and mutation analysis
+- **BioPython**: Sequence manipulation and translation
+- **Pandas**: Data processing and analysis
+- **openpyxl**: Excel file handling
 
-2. **Copy your Snakemake workflow:**
-   ```bash
-   # Copy your existing Snakefile and scripts to:
-   cp -r /path/to/your/snakemake_workflow/* ./snakemake_workflow/
-   ```
+## 🗂️ Nextclade Datasets
 
-3. **Build and start the application:**
-   ```bash
-   docker-compose up --build
-   ```
+Pre-installed datasets for:
+- **H1N1pdm**: HA, NA, PB2, PB1, PA, NP, MP, NS
+- **H3N2**: HA, NA, PB2, PB1, PA, NP, MP, NS
+- **B/Victoria**: HA, NA, PB2, PB1, PA, NP, MP, NS
+- **B/Yamagata**: HA
+- **H5 (Avian)**: Multiple HA clades
 
-4. **Access the application:**
-   - Web interface: http://localhost:3000
-   - API: http://localhost:5000
+Datasets are automatically updated in new releases.
 
-## Usage
+## 🔐 Data Privacy
 
-### File Upload
+- All data processing occurs **locally** in Docker containers
+- No data is sent to external servers
+- Uploaded files are stored only in Docker volumes
+- Results are deleted when volumes are removed
 
-1. Navigate to http://localhost:3000
-2. Upload your files in the designated fields:
-   - **H1N1pdm sequences**: FASTA file with H1N1pdm sequences
-   - **H3N2 sequences**: FASTA file with H3N2 sequences  
-   - **B-Victoria sequences**: FASTA file with B-Victoria sequences
-   - **Positions reference**: Excel file with amino acid positions of interest
+## 🆘 Support
 
-3. Click "Upload Files & Start Analysis"
+For issues, questions, or contributions:
+- Open an issue on GitHub (if public repository available)
+- Contact: [your-email@domain.com]
 
-### Monitoring Progress
+## 📄 License
 
-- Real-time status updates appear automatically
-- Workflow logs are streamed live during execution
-- Progress indicators show current workflow stage
+[Specify your license - e.g., MIT, GPL-3.0, etc.]
 
-### Downloading Results
+## 🙏 Acknowledgments
 
-- When analysis completes, a download button appears
-- Results are packaged as a ZIP file containing:
-  - Nextclade phylogenetic classification (CSV)
-  - Amino acid translations (FASTA)
-  - Position analysis results (CSV)
-  - Glycosylation site analysis (CSV)
-  - Antiviral resistance positions (CSV)
-  - Combined Excel reports
+- **Nextclade**: Nextstrain team for phylogenetic analysis tools
+- **GISAID**: For influenza sequence data standards
+- **WHO**: For influenza surveillance guidelines
 
-## File Requirements
+## 📈 Version History
 
-| File Type | Expected Name | Format | Required |
-|-----------|---------------|---------|----------|
-| H1N1pdm sequences | `sequences_h1n1pdm_ha.fasta` | FASTA | Optional* |
-| H3N2 sequences | `sequences_h3n2_ha.fasta` | FASTA | Optional* |
-| B-Victoria sequences | `sequences_vic_ha.fasta` | FASTA | Optional* |
-| Positions reference | `aa_positions_of_interest.xlsx` | Excel | **Required** |
+### Latest Release
+- Multi-platform support (AMD64 + ARM64)
+- Updated Nextclade datasets
+- Enhanced error handling
+- Improved UI/UX
 
-*At least one sequence file must be provided
+---
 
-## Development
-
-### Project Structure
-
-```
-Positions_WebApp/
-├── client/                 # React frontend
-│   ├── src/
-│   │   ├── components/     # UI components
-│   │   ├── services/       # API client
-│   │   └── types.ts        # TypeScript definitions
-│   ├── Dockerfile
-│   └── package.json
-├── server/                 # Node.js backend
-│   ├── src/
-│   │   ├── routes/         # API routes
-│   │   └── server.ts       # Main server
-│   ├── Dockerfile
-│   └── package.json
-├── snakemake/             # Snakemake environment
-│   ├── environment.yml     # Conda dependencies
-│   ├── Dockerfile
-│   └── run_snakemake.sh   # Execution script
-├── docker-compose.yml     # Multi-service setup
-└── README.md
-```
-
-### Local Development
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   cd client && npm install
-   cd ../server && npm install
-   ```
-
-2. **Start development servers:**
-   ```bash
-   npm run dev
-   ```
-
-3. **Build for production:**
-   ```bash
-   npm run build
-   ```
-
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | 5000 | Backend API port |
-| `CLIENT_URL` | http://localhost:3000 | Frontend URL for CORS |
-| `REACT_APP_API_URL` | /api | API base URL |
-| `REACT_APP_WS_URL` | http://localhost:5000 | WebSocket URL |
-
-## Deployment
-
-### Docker Compose (Recommended)
-
-```bash
-docker-compose up -d
-```
-
-### Manual Container Build
-
-```bash
-# Build all images
-docker-compose build
-
-# Start services
-docker-compose up
-```
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Out of Memory**: Increase Docker memory allocation to 4GB+
-2. **Port Conflicts**: Change ports in docker-compose.yml if 3000/5000 are taken
-3. **File Upload Fails**: Check file formats and size limits (100MB max)
-4. **Workflow Errors**: Check container logs with `docker-compose logs`
-
-### Logs
-
-```bash
-# View all logs
-docker-compose logs
-
-# View specific service logs
-docker-compose logs api
-docker-compose logs client
-docker-compose logs snakemake-env
-```
-
-### Container Management
-
-```bash
-# Stop all services
-docker-compose down
-
-# Rebuild specific service
-docker-compose build api
-
-# Clean up volumes (removes uploaded data)
-docker-compose down -v
-```
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/upload` | Upload files for analysis |
-| POST | `/api/workflow/start/:uploadId` | Start workflow execution |
-| GET | `/api/workflow/status/:uploadId` | Get workflow status |
-| GET | `/api/workflow/download/:uploadId` | Download results |
-
-## License
-
-This project is part of the influenza sequence analysis pipeline for the National Influenza Centre (NIC).
-
-## Support
-
-For issues or questions, please contact the bioinformatics team.
-
+**Developed by**: National Influenza Centre (NIC)  
+**Maintained by**: [Your Name/Organization]  
+**Docker Hub**: https://hub.docker.com/r/lexmond/nicemc_positionswebbapp
