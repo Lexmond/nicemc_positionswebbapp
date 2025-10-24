@@ -1,0 +1,68 @@
+# NICEMC Influenza Positions Web Application
+# Public Docker Compose Configuration
+# For local deployment only
+
+version: '3.8'
+
+services:
+  # Snakemake workflow environment with Nextclade
+  snakemake-env:
+    image: lexmond/nicemc_positionswebbapp:snakemake-env
+    container_name: positions-snakemake
+    volumes:
+      - workflow_input:/app/input
+      - workflow_output:/app/output
+      - workflow_triggers:/app/triggers
+    working_dir: /app
+    command: /app/workflow_watcher.sh
+    networks:
+      - positions-network
+    environment:
+      - CORES=4
+      - INPUT_DIR=/app/input
+      - OUTPUT_DIR=/app/output
+      - WORKFLOW_DIR=/app/workflow
+      - TRIGGER_DIR=/app/triggers
+    restart: unless-stopped
+
+  # Backend API server
+  api:
+    image: lexmond/nicemc_positionswebbapp:api
+    container_name: positions-api
+    ports:
+      - "5000:5000"
+    volumes:
+      - uploads_data:/app/uploads
+      - workflow_input:/app/workflow_input
+      - workflow_output:/app/output
+      - workflow_triggers:/app/triggers
+    depends_on:
+      - snakemake-env
+    networks:
+      - positions-network
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+    restart: unless-stopped
+
+  # React frontend
+  client:
+    image: lexmond/nicemc_positionswebbapp:client
+    container_name: positions-client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - positions-network
+    restart: unless-stopped
+
+volumes:
+  uploads_data:
+  workflow_input:
+  workflow_output:
+  workflow_triggers:
+
+networks:
+  positions-network:
+    driver: bridge
