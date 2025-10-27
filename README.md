@@ -45,16 +45,55 @@ df -h
 
 ### Option 1: Using docker-compose.yml directly
 
+### 1. Clone or Download
+
+#### Option A: Linux / macOS / WSL
+
 ```bash
 # Create a directory for the application
-mkdir ~/influenza-positions
-cd ~/influenza-positions
+mkdir influenza-positions-app
+cd influenza-positions-app
 
 # Download the docker-compose file
 curl -o docker-compose.yml https://raw.githubusercontent.com/Lexmond/nicemc_positionswebbapp/main/docker-compose.public.yml
+```
 
-# Start the application
+#### Option B: Windows (PowerShell)
+
+```powershell
+# Create a directory for the application
+mkdir influenza-positions-app
+cd influenza-positions-app
+
+# Download the docker-compose file
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Lexmond/nicemc_positionswebbapp/main/docker-compose.public.yml" -OutFile "docker-compose.yml"
+```
+
+#### Option C: Manual Download (All Platforms)
+
+1. Create a folder named `influenza-positions-app`
+2. Download [docker-compose.yml](https://raw.githubusercontent.com/Lexmond/nicemc_positionswebbapp/main/docker-compose.public.yml)
+3. Save it in the `influenza-positions-app` folder
+4. Open **Command Prompt**, **PowerShell**, or **Terminal** in that folder
+
+### 2. Start the Application
+
+#### Linux / macOS / WSL
+```bash
+# Pull images and start all services
 docker-compose up -d
+
+# Check status
+docker-compose ps
+```
+
+#### Windows (PowerShell or Command Prompt)
+```powershell
+# Pull images and start all services
+docker-compose up -d
+
+# Check status
+docker-compose ps
 ```
 
 ### Option 2: Manual docker-compose.yml creation
